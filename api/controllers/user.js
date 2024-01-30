@@ -90,7 +90,7 @@ const login = async (req, res) => {
       return res.status(200).send({
         status: "success",
         message: "login successful",
-        userForToken,
+        token,
       });
     } else {
       return res.status(200).send({
