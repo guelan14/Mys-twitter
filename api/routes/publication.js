@@ -19,5 +19,6 @@ router.post(
   [check.auth, uploads.single("file0")],
   PublicationController.save
 );
+router.get("/list/:page?", check.auth, PublicationController.list);
 
 module.exports = router;

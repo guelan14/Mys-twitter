@@ -73,7 +73,7 @@ const login = async (req, res) => {
       if (!pwdMatch) {
         return res.status(400).send({
           status: "error",
-          message: "Information not valid",
+          message: "Invalid credentials: Password mismatch",
         });
       }
 
@@ -86,11 +86,10 @@ const login = async (req, res) => {
 
       //creating token
       const token = jwt.sign(userForToken, process.env.SECRET_KEY);
-
       return res.status(200).send({
         status: "success",
         message: "login successful",
-        token,
+        token: token,
       });
     } else {
       return res.status(200).send({
@@ -107,4 +106,6 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { userTest, register, login };
+const update = (req, res) => {};
+
+module.exports = { userTest, register, login, update };

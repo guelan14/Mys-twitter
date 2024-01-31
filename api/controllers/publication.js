@@ -30,7 +30,6 @@ const save = async (req, res) => {
   }
   //using user from token
   const user = req.user.id;
-  console.log(user);
 
   //create publication in db
   try {
@@ -47,4 +46,45 @@ const save = async (req, res) => {
   }
 };
 
-module.exports = { save };
+const list = async (req, res) => {
+  const user = req.user.id;
+  let page = req.params.page;
+
+  try {
+    //obtain people that the user is following
+    const [follows] = await pool.query(
+      "SELECT * FROM follow WHERE user_follower = ? ",
+      [user]
+    );
+    const userFollowing = follows.map((follow) => follow.user_following);
+
+    const mysqlFollows = userFollowing.map(() => "?").join(",");
+
+    if (follows && follows.length > 0) {
+      const itemPerPage = 10;
+      if (!page) {
+        page = 1;
+      }
+      const offset = (page - 1) * itemPerPage;
+
+      const [publications] = await pool.query(
+        `SELECT * FROM publication WHERE user_id IN (${mysqlFollows}) ORDER BY create_at DESC LIMIT ? OFFSET ?`,
+        [...userFollowing, itemPerPage, offset]
+      );
+
+      return res.status(200).send({
+        status: "succes",
+        message: "lista",
+        follows,
+        publications,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "no se pudo cargar el feed",
+    });
+  }
+};
+
+module.exports = { save, list };

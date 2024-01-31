@@ -21,8 +21,11 @@ app.use(express.urlencoded({ extended: true }));
 //load routes
 const UserRoutes = require("./routes/user");
 const PublicationRoutes = require("./routes/publication");
+const FollowRoutes = require("./routes/follow");
+
 app.use("/api/publication", PublicationRoutes);
 app.use("/api/user", UserRoutes);
+app.use("/api/follow", FollowRoutes);
 
 //test routes
 app.get("/test", (req, res) => {
