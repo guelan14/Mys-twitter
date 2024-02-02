@@ -5,44 +5,43 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 
 const save = async (req, res) => {
+  const description = req.body.description;
+  const imageFile = req.file;
+  let image = "";
   //obtain Data from client
-  if (!req.file) {
-    return res.status(404).send({
-      status: "error",
-      message: "Peticion no incluye imagen",
-    });
-  }
+  if (imageFile) {
+    image = "pub-" + req.file.originalname;
+    let imageSplit = image.split(".");
+    const extension = imageSplit[1];
 
-  let description = req.body.description;
+    if (extension != "png" && extension != "jpg" && extension != "gif") {
+      const filePath = req.file.path;
+      const fileDeleted = fs.unlinkSync(filePath);
 
-  let image = "pub-" + req.file.originalname;
-  let imageSplit = image.split(".");
-  const extension = imageSplit[1];
-
-  if (extension != "png" && extension != "jpg" && extension != "gif") {
-    const filePath = req.file.path;
-    const fileDeleted = fs.unlinkSync(filePath);
-
-    return res.status(400).send({
-      status: "error",
-      message: "extension del fichero invalida",
-    });
+      return res.status(400).send({
+        status: "error",
+        message: "extension del fichero invalida",
+      });
+    }
   }
   //using user from token
-  const user = req.user.id;
+  const user_id = req.user.id;
+  const username = req.user.username;
 
   //create publication in db
   try {
     await pool.query(
-      "INSERT INTO publication (user_id, text_publication, image) VALUES (? , ?, ?)",
-      [user, description, image]
+      "INSERT INTO publication (user_id, text_publication, image, username) VALUES (? , ?, ?, ?)",
+      [user_id, description, image, username]
     );
     return res.status(200).send({
       status: "succes",
       message: "publication created",
     });
   } catch (error) {
-    return res.status(500).send({ status: "error", message: error.message });
+    return res
+      .status(500)
+      .send({ status: "error aca", message: error.message });
   }
 };
 
@@ -74,8 +73,7 @@ const list = async (req, res) => {
 
       return res.status(200).send({
         status: "succes",
-        message: "lista",
-        follows,
+        message: "lista de publicacion",
         publications,
       });
     }
